@@ -1,5 +1,7 @@
+import Calculator from "@/Components/Calculator";
+
 export default function Home() {
   return (
-    <p>Hello World</p>
+      <Calculator />
   );
 }
