@@ -11,7 +11,7 @@ export default function Calculator () {
     const toggleScientific = () => setShowScientific(!showScientific);
 
     return (
-        <div className="h-dvh p-3 flex flex-col justify-end">
+        <div className="h-dvh p-3 flex flex-col justify-end overflow-hidden">
             <CalcScreen />
             <CalcButtons showScientific={showScientific} toggleScientific={toggleScientific} />
         </div>

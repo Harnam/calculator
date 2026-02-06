@@ -16,7 +16,7 @@ export default function Button({ type, onclick, display, isScientific }: Props) 
 
     return (
         <div className={
-            `${isScientific ? "h-20" : "h-32"} ${(type == "scientific")? "w-20" : "w-32"}
+            `${isScientific ? "h-20" : "h-32"} w-full ${(type == "scientific")? "w-20" : "min-w-32"}
              rounded-full ${bgColor[type]} flex justify-center items-center ${isScientific ? "text-3xl" : "text-5xl"} hover:scale-110 transition duration-200`} onClick={onclick}>
             <span>{display}</span>
         </div>
