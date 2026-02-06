@@ -2,9 +2,10 @@ interface Props {
     type: "number" | "operator" | "special" | "scientific";
     onclick: VoidFunction;
     display: string;
+    isScientific: boolean;
 }
 
-export default function Button({ type, onclick, display }: Props) {
+export default function Button({ type, onclick, display, isScientific }: Props) {
 
     const bgColor = {
         "number": "bg-[#343434] active:bg-[#747474]",
@@ -14,7 +15,9 @@ export default function Button({ type, onclick, display }: Props) {
     };
 
     return (
-        <div className={`h-32 w-32 rounded-full ${bgColor[type]} flex justify-center items-center text-5xl hover:scale-110 transition duration-200`} onClick={onclick}>
+        <div className={
+            `${isScientific ? "h-20" : "h-32"} ${(type == "scientific")? "w-20" : "w-32"}
+             rounded-full ${bgColor[type]} flex justify-center items-center ${isScientific ? "text-3xl" : "text-5xl"} hover:scale-110 transition duration-200`} onClick={onclick}>
             <span>{display}</span>
         </div>
     );
