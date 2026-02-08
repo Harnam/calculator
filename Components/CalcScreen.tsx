@@ -1,7 +1,7 @@
-export default function CalcScreen () {
+export default function CalcScreen ({ isScientific, text }: { isScientific: boolean, text: string }) {
     return (
-        <div className="text-7xl flex pb-5">
-            <span className="self-end text-right w-full">0</span>
+        <div className={`${isScientific ? "text-7xl" : "text-9xl"} flex pb-5`}>
+            <span className="self-end text-right w-full">{text}</span>
         </div>
     );
 }
