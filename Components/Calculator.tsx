@@ -14,6 +14,7 @@ export default function Calculator () {
 
     const [exp, setExp] = useState<(string|number)[]>([]);
     const [isTypingNumber, setIsTypingNumber] = useState(false);
+    const [isAC, setIsAC] = useState(true);
 
     const operators: Record<string, {pre: number, eval: (rnp: number[]) => void, isUnary?: boolean}> = {
         "+": {pre: 1, eval: (rnp) => rnp.splice(rnp.length - 2, 2, rnp[rnp.length - 2] + rnp[rnp.length - 1])},
@@ -28,12 +29,22 @@ export default function Calculator () {
             (val: 0|1|2|3|4|5|6|7|8|9) => {
                 setCurrentNum((prev) => (prev == 0) ? val : prev * 10 + val);
                 setIsTypingNumber(true);
+                setIsAC(false);
             },
         backspace:
             () => {
+                console.log("Backspace pressed before", exp, currentNum, isTypingNumber);
                 if (isTypingNumber && currentNum < 10) setIsTypingNumber(false);
                 if (isTypingNumber) setCurrentNum(Math.floor(currentNum / 10));
-                else setExp((prev) => prev.slice(0, -1));
+                else {
+                    if (exp.length > 0 && typeof exp[exp.length - 1] === "number"){
+                        setCurrentNum(Math.floor(exp[exp.length - 1] as number / 10));
+                        if(exp[exp.length - 1] as number >= 10) setIsTypingNumber(true);
+                    }
+                    setExp((prev) => prev.slice(0, -1));
+                }
+                setIsAC(exp.length == 0 && currentNum < 10);
+                console.log("Backspace pressed after", exp, currentNum, isTypingNumber);
             },
         operator:
             (val: string) => {
@@ -44,6 +55,7 @@ export default function Calculator () {
                 } else setExp(([0, val]));
                 setCurrentNum(0);
                 setIsTypingNumber(false);
+                setIsAC(false);
             },
         decimal:
             () => {
@@ -53,6 +65,15 @@ export default function Calculator () {
             },
         clear:
             () => {
+                if (isAC) {
+                    setExp([]);
+                    setCurrentNum(0);
+                    setIsTypingNumber(false);
+                } else {
+                    setCurrentNum(0);
+                    setIsTypingNumber(false);
+                    setIsAC(true);
+                }
             },
         equal:
             () => {
@@ -63,7 +84,7 @@ export default function Calculator () {
     const calcExp = () => {
         console.log("Calculating expression...", (exp.join("") + (isTypingNumber ? currentNum : "")));
         console.log("Calculating expression:", exp);
-        if(exp.length == 0 && !isTypingNumber) return;
+        if(exp.length == 0) return;
         const sol = [...exp, ...(isTypingNumber ? [currentNum] : [])];
         if(typeof sol[sol.length - 1] === "string" && !operators[sol[sol.length - 1]].isUnary) sol.pop();
         const opStack: string[] = [];
@@ -83,6 +104,7 @@ export default function Calculator () {
         setExp([]);
         setCurrentNum(rnp[0]);
         setIsTypingNumber(true);
+        setIsAC(true);
     }
 
     const text = exp.join("") + (isTypingNumber ? currentNum : "");
@@ -90,7 +112,7 @@ export default function Calculator () {
     return (
         <div className="h-dvh p-3 flex flex-col justify-end overflow-hidden">
             <CalcScreen isScientific={showScientific} text={text == "" ? "0" : text}/>
-            <CalcButtons handleButtons={handleButtons} showScientific={showScientific} />
+            <CalcButtons isAC={isAC} handleButtons={handleButtons} showScientific={showScientific} />
         </div>
     );
 }

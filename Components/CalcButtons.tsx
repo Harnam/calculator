@@ -13,9 +13,10 @@ interface Props {
         "clear": () => void;
         "equal": () => void;
     };
+    isAC: boolean;
 }
 
-export default function CalcButtons ({showScientific, handleButtons }: Props) {
+export default function CalcButtons ({showScientific, handleButtons, isAC }: Props) {
 
     const handleButton = () => {
         console.log("button pressed");
@@ -61,7 +62,7 @@ export default function CalcButtons ({showScientific, handleButtons }: Props) {
             }
             <div className="w-full place-items-center grid grid-cols-4 gap-4 mb-4">
                 <Button display="⌫" type="special" onclick={() => handleButtons.backspace()} isScientific={showScientific}/>
-                <Button display="AC" type="special" onclick={() => handleButtons.clear()} isScientific={showScientific}/>
+                <Button display={isAC ? "AC" : "C"} type="special" onclick={() => handleButtons.clear()} isScientific={showScientific}/>
                 <Button display="%" type="special" onclick={() => handleButtons.operator("%")} isScientific={showScientific}/>
                 <Button display="÷" type="operator" onclick={() => handleButtons.operator("÷")} isScientific={showScientific}/>
                 <Button display="7" type="number" onclick={() => handleButtons.number(7)} isScientific={showScientific}/>
