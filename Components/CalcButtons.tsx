@@ -23,7 +23,7 @@ export default function CalcButtons ({showScientific, handleButtons, isAC }: Pro
     }
 
     return (
-        <div className=" select-none">
+        <div className="h-7/12 select-none">
             {
             (showScientific) ? 
             <div className="w-full place-items-center grid grid-cols-6 gap-4 mb-4">
@@ -60,7 +60,7 @@ export default function CalcButtons ({showScientific, handleButtons, isAC }: Pro
             </div>
              : <></>
             }
-            <div className="w-full place-items-center grid grid-cols-4 gap-4 mb-4">
+            <div className="h-full w-full place-items-center grid grid-cols-4 gap-4 mb-4">
                 <Button display="⌫" type="special" onclick={() => handleButtons.backspace()} isScientific={showScientific}/>
                 <Button display={isAC ? "AC" : "C"} type="special" onclick={() => handleButtons.clear()} isScientific={showScientific}/>
                 <Button display="%" type="special" onclick={() => handleButtons.operator("%")} isScientific={showScientific}/>
