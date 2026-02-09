@@ -10,46 +10,86 @@ export default function Calculator () {
 
     const toggleScientific = () => setShowScientific(!showScientific);
 
-    const [calcText, setCalcText] = useState("0");
+    const [currentNum, setCurrentNum] = useState(0);
+
+    const [exp, setExp] = useState<(string|number)[]>([]);
+    const [isTypingNumber, setIsTypingNumber] = useState(false);
+
+    const operators: Record<string, {pre: number, eval: (rnp: number[]) => void, isUnary?: boolean}> = {
+        "+": {pre: 1, eval: (rnp) => rnp.splice(rnp.length - 2, 2, rnp[rnp.length - 2] + rnp[rnp.length - 1])},
+        "-": {pre: 1, eval: (rnp) => rnp.splice(rnp.length - 2, 2, rnp[rnp.length - 2] - rnp[rnp.length - 1])},
+        "×": {pre: 2, eval: (rnp) => rnp.splice(rnp.length - 2, 2, rnp[rnp.length - 2] * rnp[rnp.length - 1])},
+        "÷": {pre: 2, eval: (rnp) => rnp.splice(rnp.length - 2, 2, rnp[rnp.length - 2] / rnp[rnp.length - 1])},
+        "%": {pre: 3, eval: (rnp) => rnp.splice(rnp.length - 1, 1, (rnp[rnp.length - 1]) * ((typeof rnp[rnp.length - 2] === "number") ? rnp[rnp.length - 2] : 1) / 100), isUnary: true},
+    };
 
     const handleButtons = {
         number:
             (val: 0|1|2|3|4|5|6|7|8|9) => {
-                setCalcText((prev) => (prev == "0") ? String(val) : prev + String(val));
+                setCurrentNum((prev) => (prev == 0) ? val : prev * 10 + val);
+                setIsTypingNumber(true);
             },
         backspace:
             () => {
-                setCalcText((prev) => (prev.length == 1) ? "0" : prev.slice(0, -1));
+                if (isTypingNumber && currentNum < 10) setIsTypingNumber(false);
+                if (isTypingNumber) setCurrentNum(Math.floor(currentNum / 10));
+                else setExp((prev) => prev.slice(0, -1));
             },
         operator:
             (val: string) => {
-                setCalcText((prev) => prev + val);
+                if(isTypingNumber) setExp((prev) => [...prev, currentNum, val]);
+                else if (exp.length > 0){
+                    if (typeof exp[exp.length - 1] === "string" && !operators[exp[exp.length - 1]].isUnary) setExp((prev) => [...prev.slice(0, -1), val]);
+                    else setExp((prev) => [...prev, val]);
+                } else setExp(([0, val]));
+                setCurrentNum(0);
+                setIsTypingNumber(false);
             },
         decimal:
             () => {
-                setCalcText((prev) => prev + ".");
             },
         changeSign:
             () => {
-                setCalcText((prev) => (prev.startsWith("-")) ? prev.slice(1) : "-" + prev);
             },
         clear:
             () => {
-                setCalcText("0");
             },
         equal:
             () => {
-                try {
-                    setCalcText(eval(calcText).toString());
-                } catch (e) {
-                    setCalcText("Error");
-                }
+                calcExp();
             }
     };
 
+    const calcExp = () => {
+        console.log("Calculating expression...", (exp.join("") + (isTypingNumber ? currentNum : "")));
+        console.log("Calculating expression:", exp);
+        if(exp.length == 0 && !isTypingNumber) return;
+        const sol = [...exp, ...(isTypingNumber ? [currentNum] : [])];
+        if(typeof sol[sol.length - 1] === "string" && !operators[sol[sol.length - 1]].isUnary) sol.pop();
+        const opStack: string[] = [];
+        const rnp: number[] = [];
+        sol.forEach(token => {
+            if (typeof token === "number") {
+                rnp.push(token);
+            } else {
+                while (opStack.length > 0 && operators[opStack[opStack.length - 1]].pre >= operators[token].pre)
+                    operators[opStack.pop()!].eval(rnp);
+                opStack.push(token);
+            }
+            console.log("Token:", token, "RNP:", rnp, "OpStack:", opStack);
+        });
+        while (opStack.length > 0) operators[opStack.pop()!].eval(rnp);
+        console.log("Result:", rnp.join(" "));
+        setExp([]);
+        setCurrentNum(rnp[0]);
+        setIsTypingNumber(true);
+    }
+
+    const text = exp.join("") + (isTypingNumber ? currentNum : "");
+
     return (
         <div className="h-dvh p-3 flex flex-col justify-end overflow-hidden">
-            <CalcScreen isScientific={showScientific} text={calcText != "" ? calcText : "0"}/>
+            <CalcScreen isScientific={showScientific} text={text == "" ? "0" : text}/>
             <CalcButtons handleButtons={handleButtons} showScientific={showScientific} />
         </div>
     );
